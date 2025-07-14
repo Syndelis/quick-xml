@@ -1115,14 +1115,18 @@ mod tests {
                     => "<Tuple>first</Tuple>\
                         <Tuple>42</Tuple>");
 
-                // We cannot wrap map or struct in any container and should not
-                // flatten it, so it is impossible to serialize maps and structs
+                // We cannot wrap map in any container and should not
+                // flatten it, so it is impossible to serialize maps
                 err!(map:
                     BTreeMap::from([("$value", BTreeMap::from([("_1", 2), ("_3", 4)]))])
                     => Unsupported("serialization of map types is not supported in `$value` field"));
-                err!(struct_:
-                    BTreeMap::from([("$value", Struct { key: "answer", val: (42, 42) })])
-                    => Unsupported("serialization of struct `Struct` is not supported in `$value` field"));
+                value!(struct_:
+                    Struct { key: "answer", val: (42, 42) }
+                    => "<Struct>\
+                            <key>answer</key>\
+                            <val>42</val>\
+                            <val>42</val>\
+                        </Struct>");
                 value!(enum_struct:
                     Enum::Struct { key: "answer", val: (42, 42) }
                     => "<Struct>\
@@ -1242,8 +1246,8 @@ mod tests {
                     => "<Tuple>first</Tuple>\
                         <Tuple>42</Tuple>");
 
-                // We cannot wrap map or struct in any container and should not
-                // flatten it, so it is impossible to serialize maps and structs
+                // We cannot wrap map in any container and should not
+                // flatten it, so it is impossible to serialize maps
                 err!(map:
                     Value {
                         before: "answer",
@@ -1251,13 +1255,13 @@ mod tests {
                         after: "answer",
                     }
                     => Unsupported("serialization of map types is not supported in `$value` field"));
-                err!(struct_:
-                    Value {
-                        before: "answer",
-                        content: Struct { key: "answer", val: (42, 42) },
-                        after: "answer",
-                    }
-                    => Unsupported("serialization of struct `Struct` is not supported in `$value` field"));
+                value!(struct_:
+                    Struct { key: "answer", val: (42, 42) }
+                    => "<Struct>\
+                            <key>answer</key>\
+                            <val>42</val>\
+                            <val>42</val>\
+                        </Struct>");
                 value!(enum_struct:
                     Enum::Struct { key: "answer", val: (42, 42) }
                     => "<Struct>\
@@ -1838,14 +1842,19 @@ mod tests {
                         <Tuple>first</Tuple>\n  \
                         <Tuple>42</Tuple>\n");
 
-                // We cannot wrap map or struct in any container and should not
-                // flatten it, so it is impossible to serialize maps and structs
+                // We cannot wrap map in any container and should not
+                // flatten it, so it is impossible to serialize maps
                 err!(map:
                     BTreeMap::from([("$value", BTreeMap::from([("_1", 2), ("_3", 4)]))])
                     => Unsupported("serialization of map types is not supported in `$value` field"));
-                err!(struct_:
-                    BTreeMap::from([("$value", Struct { key: "answer", val: (42, 42) })])
-                    => Unsupported("serialization of struct `Struct` is not supported in `$value` field"));
+                value!(struct_:
+                    Struct { key: "answer", val: (42, 42) }
+                    => "\n  \
+                        <Struct>\n    \
+                            <key>answer</key>\n    \
+                            <val>42</val>\n    \
+                            <val>42</val>\n  \
+                        </Struct>\n");
                 value!(enum_struct:
                     Enum::Struct { key: "answer", val: (42, 42) }
                     => "\n  \
@@ -1967,8 +1976,8 @@ mod tests {
                         <Tuple>first</Tuple>\n  \
                         <Tuple>42</Tuple>\n  ");
 
-                // We cannot wrap map or struct in any container and should not
-                // flatten it, so it is impossible to serialize maps and structs
+                // We cannot wrap map in any container and should not
+                // flatten it, so it is impossible to serialize maps
                 err!(map:
                     Value {
                         before: "answer",
@@ -1976,13 +1985,22 @@ mod tests {
                         after: "answer",
                     }
                     => Unsupported("serialization of map types is not supported in `$value` field"));
-                err!(struct_:
+                value!(struct_:
                     Value {
                         before: "answer",
                         content: Struct { key: "answer", val: (42, 42) },
                         after: "answer",
                     }
-                    => Unsupported("serialization of struct `Struct` is not supported in `$value` field"));
+                    => "\n  \
+                        <Value>\n    \
+                            <before>answer</before>\n    \
+                            <Struct>\n      \
+                                <key>answer</key>\n      \
+                                <val>42</val>\n      \
+                                <val>42</val>\n    \
+                            </Struct>\n    \
+                            <after>answer</after>\n  \
+                        </Value>\n  ");
                 value!(enum_struct:
                     Enum::Struct { key: "answer", val: (42, 42) }
                     => "\n  \
